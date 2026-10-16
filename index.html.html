@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Lost Vault | Inquestur</title>
+<style>
+  :root {
+    --bg: #080d13; --panel: rgba(15, 24, 34, .92); --gold: #e8bd68;
+    --gold-bright: #ffe5a2; --text: #edf1f5; --muted: #9aa9b8;
+    --line: rgba(232,189,104,.28); --red: #ff7777;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; color: var(--text);
+    font-family: Inter, "Segoe UI", system-ui, sans-serif;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(61,91,117,.28), transparent 55%),
+      radial-gradient(ellipse at 50% 100%, rgba(128,77,28,.16), transparent 45%),
+      var(--bg);
+    display: grid; place-items: center; padding: 28px 16px;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .15;
+    background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size: 42px 42px;
+  }
+  .wrap { width: min(100%, 720px); position: relative; }
+  .eyebrow { text-align: center; text-transform: uppercase; letter-spacing: .32em; font-size: .72rem; color: var(--gold); }
+  h1 { text-align: center; font-family: Georgia, "Times New Roman", serif; font-weight: 500;
+       font-size: clamp(2.2rem, 7vw, 4rem); letter-spacing: .04em; margin: 12px 0 8px; }
+  .subtitle { text-align: center; color: var(--muted); line-height: 1.6; max-width: 510px; margin: 0 auto 28px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 18px;
+           padding: clamp(22px, 5vw, 42px); box-shadow: 0 25px 80px #0008, inset 0 1px #ffffff0a; }
+  .seal { width: 82px; height: 82px; margin: 0 auto 22px; border: 1px solid var(--gold);
+          border-radius: 50%; display: grid; place-items: center; color: var(--gold-bright);
+          box-shadow: 0 0 30px #e8bd6818, inset 0 0 20px #e8bd6810; }
+  .seal svg { width: 42px; height: 42px; }
+  h2 { text-align: center; font-family: Georgia, serif; font-weight: 500; font-size: 1.6rem; margin: 0 0 10px; }
+  .description { color: var(--muted); text-align: center; line-height: 1.65; margin: 0 auto 26px; max-width: 460px; }
+  .digits { display: flex; gap: 12px; justify-content: center; margin: 24px 0 20px; }
+  .digits input { width: min(18%, 68px); height: 76px; border-radius: 10px; border: 1px solid #40505f;
+    background: #080d13; color: var(--gold-bright); font: 600 2rem/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+    text-align: center; outline: none; transition: border .2s, box-shadow .2s; caret-color: var(--gold); }
+  .digits input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px #e8bd681c; }
+  .digits input.invalid { border-color: var(--red); animation: shake .28s; }
+  @keyframes shake { 25%,75% { transform: translateX(-3px); } 50% { transform: translateX(3px); } }
+  button { cursor: pointer; border: 0; border-radius: 9px; font: inherit; font-weight: 700; }
+  .submit { display: block; width: 100%; padding: 15px 20px; color: #1b160b; background: linear-gradient(135deg, var(--gold-bright), #c18a3f);
+            letter-spacing: .08em; text-transform: uppercase; transition: transform .15s, filter .15s; }
+  .submit:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  .submit:active { transform: translateY(1px); }
+  .message { min-height: 24px; text-align: center; color: var(--red); margin: 14px 0 0; font-size: .92rem; }
+  .hint { color: #728292; text-align: center; font-size: .78rem; margin-top: 20px; }
+  .footer { text-align: center; color: #687887; font-size: .75rem; letter-spacing: .12em; margin-top: 20px; }
+  .hidden { display: none !important; }
+  .victory { text-align: center; }
+  .victory .seal { width: 100px; height: 100px; border-color: #f4d98e; animation: glow 2s ease-in-out infinite alternate; }
+  @keyframes glow { from { box-shadow: 0 0 20px #e8bd6815; } to { box-shadow: 0 0 42px #e8bd6866; } }
+  .victory h2 { color: var(--gold-bright); font-size: clamp(2rem, 6vw, 3rem); }
+  .victory .description { font-size: 1.05rem; }
+  .treasure { font-size: 3.2rem; margin: 8px 0 18px; filter: drop-shadow(0 0 16px #e8bd6870); }
+  .reset { margin-top: 20px; color: var(--muted); background: transparent; border: 1px solid #40505f; padding: 10px 16px; }
+  .reset:hover { border-color: var(--gold); color: var(--gold-bright); }
+  .rule { width: 74px; height: 1px; background: var(--gold); opacity: .65; margin: 22px auto; }
+  /* Inquest facility theme */
+  :root {
+    --bg: #09080d; --panel: rgba(20, 15, 21, .96); --gold: #e45c53;
+    --gold-bright: #ffb1a6; --text: #f1e9eb; --muted: #b0a0a7;
+    --line: rgba(228,92,83,.42); --red: #ff5555;
+  }
+  body {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(151,35,43,.22), transparent 55%),
+      radial-gradient(ellipse at 50% 100%, rgba(69,24,47,.20), transparent 45%),
+      var(--bg);
+  }
+  body::before {
+    opacity: .20;
+    background-image:
+      linear-gradient(rgba(228,92,83,.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(228,92,83,.045) 1px, transparent 1px);
+  }
+  .eyebrow { letter-spacing: .24em; }
+  .seal { border-radius: 12px; box-shadow: 0 0 30px #e45c5318, inset 0 0 20px #e45c5310; }
+  .digits input { border-radius: 3px; border-color: #59414a; }
+  .digits input:focus { box-shadow: 0 0 0 3px #e45c531c; }
+  .submit { border-radius: 3px; color: #fff2ef; background: linear-gradient(135deg, #b83b42, #70242f); }
+  .reset { border-radius: 3px; }
+  .footer { letter-spacing: .16em; }
+  @media (max-width: 420px) { .digits { gap: 7px; } .digits input { height: 64px; font-size: 1.7rem; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="eyebrow">INQUESTUR • KLASSIFIZIERT</div>
+  <h1>THE LOST VAULT</h1>
+  <p class="subtitle">Vier Prüfungen. Vier Zahlen. Ein versiegeltes Gewölbe.<br>Sammeln Sie die Hinweise Ihrer Mission und geben Sie den Zugangscode ein.</p>
+
+  <section class="panel" id="entryPanel" aria-labelledby="entryTitle">
+    <div class="seal" aria-hidden="true">
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M8 8h12V4h8v4h12v12h4v8h-4v12H28v4h-8v-4H8V28H4v-8h4V8Z"/><path d="M16 16h16v16H16z"/>
+        <path d="m20 24 3 3 6-7"/><path d="M12 24h4m16 0h4M24 12v4m0 16v4"/>
+      </svg>
+    </div>
+    <h2 id="entryTitle">ZUGANG GESPERRT</h2>
+    <p class="description">Sicherheitsprotokoll aktiv. Nur Agenten, die alle vier Prüfungen bestanden haben, kennen die Kombination.</p>
+    <form id="codeForm">
+      <div class="digits" role="group" aria-label="Four digit vault code">
+        <input aria-label="First digit" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" required>
+        <input aria-label="Second digit" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" required>
+        <input aria-label="Third digit" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" required>
+        <input aria-label="Fourth digit" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="off" required>
+      </div>
+      <button class="submit" type="submit">ZUGANGSCODE PRÜFEN <span aria-hidden="true">→</span></button>
+      <p class="message" id="message" aria-live="polite"></p>
+    </form>
+    <p class="hint">Geben Sie die vier Ziffern in der Reihenfolge Ihrer Hinweise ein.</p>
+  </section>
+
+  <section class="panel victory hidden" id="victoryPanel" aria-live="polite">
+    <div class="seal" aria-hidden="true">
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M7 20 24 7l17 13v20H7V20Z"/><path d="M17 40V25h14v15M4 20 24 4l20 16"/>
+        <path d="m20 18 3 3 6-7"/>
+      </svg>
+    </div>
+    <div class="eyebrow">ZUGRIFF AUTORISIERT</div>
+    <h2>DAS GEWÖLBE IST ENTRIEGELT</h2>
+    <div class="rule"></div>
+    <div class="treasure" aria-hidden="true">✦</div>
+    <p class="description">Herzlichen Glückwunsch Agent, Sie erweisen Sich als überaus nützlich für die Inquestur!</p>
+    <p style="color:var(--muted); margin-bottom:0">Ihre Leistung wurde registriert. Die Inquestur wird sich an Sie erinnern.</p>
+    <button class="reset" id="resetButton" type="button">Zurück zur Zugangssperre</button>
+  </section>
+  <div class="footer">INQUESTUR • INTERNE SICHERHEITSÜBERPRÜFUNG</div>
+</main>
+<script>
+  // Change this to the winning four-digit combination for your event.
+  const SECRET_CODE = "4827";
+
+  const form = document.getElementById("codeForm");
+  const inputs = [...document.querySelectorAll(".digits input")];
+  const message = document.getElementById("message");
+  const entryPanel = document.getElementById("entryPanel");
+  const victoryPanel = document.getElementById("victoryPanel");
+
+  inputs.forEach((input, index) => {
+    input.addEventListener("input", () => {
+      input.value = input.value.replace(/\D/g, "").slice(-1);
+      input.classList.remove("invalid");
+      message.textContent = "";
+      if (input.value && index < inputs.length - 1) inputs[index + 1].focus();
+    });
+    input.addEventListener("keydown", event => {
+      if (event.key === "Backspace" && !input.value && index > 0) inputs[index - 1].focus();
+      if (event.key === "ArrowLeft" && index > 0) inputs[index - 1].focus();
+      if (event.key === "ArrowRight" && index < inputs.length - 1) inputs[index + 1].focus();
+    });
+    input.addEventListener("paste", event => {
+      const pasted = (event.clipboardData || window.clipboardData).getData("text").replace(/\D/g, "");
+      if (pasted.length > 1) {
+        event.preventDefault();
+        pasted.slice(0, 4).split("").forEach((digit, i) => { if (inputs[i]) inputs[i].value = digit; });
+        inputs[Math.min(pasted.length, 4) - 1]?.focus();
+      }
+    });
+  });
+
+  form.addEventListener("submit", event => {
+    event.preventDefault();
+    const code = inputs.map(input => input.value).join("");
+    if (code === SECRET_CODE) {
+      entryPanel.classList.add("hidden");
+      victoryPanel.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      message.textContent = "ZUGRIFF VERWEIGERT. Überprüfen Sie Ihre Hinweise und versuchen Sie es erneut.";
+      inputs.forEach(input => input.classList.add("invalid"));
+      inputs[0].focus();
+      inputs.forEach(input => input.value = "");
+    }
+  });
+
+  document.getElementById("resetButton").addEventListener("click", () => {
+    victoryPanel.classList.add("hidden");
+    entryPanel.classList.remove("hidden");
+    inputs.forEach(input => { input.value = ""; input.classList.remove("invalid"); });
+    message.textContent = "";
+    inputs[0].focus();
+  });
+</script>
+</body>
+</html>
